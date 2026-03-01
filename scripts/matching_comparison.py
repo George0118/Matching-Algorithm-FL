@@ -114,7 +114,11 @@ for magnitude in magnitudes:
             m = "Regret Incomplete Information"
 
         users_sorted = sorted(average_values.keys())  # Sort magnitudes
-        averages_sorted = [average_values[user] for user in users_sorted]
+
+        if magnitude == "Time":
+            averages_sorted = [average_values[user]/user for user in users_sorted]
+        else:
+            averages_sorted = [average_values[user] for user in users_sorted]
 
         plt.plot(users_sorted, averages_sorted, marker='o', label=f"Matching: {m}", c = color_mapping_2[matching])
 
@@ -181,7 +185,11 @@ for magnitude in magnitudes:
         avg_values = []
 
         for area in areas:
-            values = area_data[matching_key][magnitude][area]["Values"]
+            if magnitude == "Time":
+                values = [v / u for v, u in zip(area_data[matching_key][magnitude][area]["Values"], area_data[matching_key][magnitude][area]["Users"])]
+            else:
+                values = area_data[matching_key][magnitude][area]["Values"]
+
             avg_value = np.mean(values)
             avg_values.append(avg_value)
 
@@ -227,3 +235,35 @@ for matching_key, matching_name in matchings.items():
     
     # Save the plot as PNG
     plt.savefig(os.path.join(save_directory, f"{matching_key}_Iterations_vs_Users_per_Area.png"), bbox_inches='tight')
+
+# Time vs Users per Area plots
+for matching_key, matching_name in matchings.items():
+    plt.figure(figsize=(10, 6))
+    plt.title(f"Average Time for different number of Nodes for {matching_name}", fontsize = 18)
+    plt.xlabel("Nodes", fontsize = 18)
+    plt.ylabel(f"Average Time", fontsize = 18)
+
+    for area in areas:
+        values = area_data[matching_key]["Time"][area]["Values"]
+        users = area_data[matching_key]["Time"][area]["Users"]
+
+        # Step 1: Group the values 
+        grouped_data = defaultdict(list)
+
+        for user, val in zip(users, values):
+            grouped_data[user].append(val)
+
+        # Step 2: Calculate the mean for each group
+        average_values = {user: np.mean(vals) for user, vals in grouped_data.items()}
+
+        users_sorted = sorted(average_values.keys())  # Sort magnitudes
+        averages_sorted = [average_values[user]/user for user in users_sorted]
+
+        plt.plot(users_sorted, averages_sorted, marker='o', label=f"Area: {area}", c = color_mapping_3[area])
+
+    plt.xticks(user_values, fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.legend(fontsize=16)
+    
+    # Save the plot as PNG
+    plt.savefig(os.path.join(save_directory, f"{matching_key}_Time_vs_Users_per_Area.png"), bbox_inches='tight')

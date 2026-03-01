@@ -13,7 +13,7 @@ ran = random.Random(42)
 
 # Learning rate
 def l(t):
-    return 1/t
+    return 1/t**0.8
 
 # Function to create all possible actions of a user
 def matching_actions(servers, quantized_fn, quantized_ptrans, quantized_datasize):
@@ -31,8 +31,7 @@ def regret_matching(users: List[User], servers: List[Server], epsilon = 0):
     user_probabilities = [1/((len(servers)+1) * len(quantized_fn) * len(quantized_ptrans) * len(quantized_datasize))] * ((len(servers)+1) * len(quantized_fn) * len(quantized_ptrans) * len(quantized_datasize))
     probabilities = []
     for _ in range(N):
-        probs = copy.deepcopy(user_probabilities)
-        probabilities.append(probs)
+        probabilities.append(copy.deepcopy(user_probabilities))
     
     # Regret Vector Initialization
     regret_vector = []

@@ -14,13 +14,12 @@ ran = random.Random(42)
 
 # Learning rate
 def l(t):
-    return 1/t
+    return 1/t**2
 
 # White Noise
 def white_noise():
-    # wn = ran.gauss(mu=0.0, sigma=0.2)
-    # return wn
-    return 0
+    wn = ran.gauss(mu=0.0, sigma=0.05)
+    return wn
 
 # Function to create all possible actions of a user
 def matching_actions(servers, quantized_fn, quantized_ptrans, quantized_datasize):
@@ -92,7 +91,7 @@ def regret_matching_II(users: List[User], servers: List[Server], epsilon = 0):
             max_value = max(probabilities[user.num])
             max_index = probabilities[user.num].index(max_value)
             execute_action(user, servers, actions[max_index])
-
+    
     return t
 
 # Convergence Check

@@ -55,7 +55,7 @@ from general_parameters import *
 urban_threshold = 30    # In an Urban Area, after 30 users the users start to be further in proximity to the CPs
 suburban_threshold = 21 # In an Suburban Area, after 21 users the users start to be further in proximity to the CPs
 rural_threshold = 12    # In an Rural Area, after 12 users the users start to be further in proximity to the CPs
-federated_learning = True
+federated_learning = False
 
 # ===================== Users', Servers' and Critical Points' Topology ===================== #
 
@@ -267,7 +267,7 @@ for area, users in all_users.items():
     
     for s in servers:   # For each server(disaster) calculate number of images each user will receive
         cps = s.get_critical_points()   # Get the relevant Critical Points
-        sizes = dataset_sizes(s, area, users, cps, total_images)
+        sizes = dataset_sizes(s, area, users, cps, total_images, True)
 
         # And add to the Dn of each user
         for i in range(N):
@@ -476,7 +476,7 @@ regret_iterations = []
 for area, regret_users in regret_all_users.items(): 
 
     regret_start = time.time()
-
+    
     if area != "Urban":
         if N <= rural_threshold:
             regret_all_users[area] = copy.deepcopy(regret_all_users["Urban"])
@@ -675,6 +675,9 @@ for matching in matchings:
     matched_users = 0
     # Local Energy
     mean_Elocal = 0
+    # Datasize
+    used_Datasize = 0
+    total_Datasize = 0
     # Transfer Energy
     mean_Etransfer = 0
     # Datarate
@@ -694,6 +697,13 @@ for matching in matchings:
             # Energy
             mean_Energy += E_local * E_local_max
             mean_Energy += E_transmit * E_transmit_max
+            # Datasize
+            if matching != "GT_URBAN":
+                used_Datasize += user.used_datasize
+                total_Datasize += user.datasize
+            else:
+                used_Datasize += user.datasize
+                total_Datasize += user.datasize
             # Local Energy
             mean_Elocal += E_local * E_local_max
             # Energy to Transmit
@@ -733,6 +743,7 @@ for matching in matchings:
     Mean Datarate: {mean_Datarate} bps\n\
     Mean User Utility: {mean_User_Utility}\n\
     Mean Server Utility: {mean_Server_Utility}\n\
+    Percentage of Data Used {used_Datasize/total_Datasize}\n\
     Time: {duration}\n\
     Iterations: {iterations}\n\
     \n")
@@ -764,9 +775,3 @@ for matching in matchings:
             Accuracies: {user_accuracies[u.num]}\n")
                 
             file.write(f"FL Duration: {FL_duration/60:.2f}\n\n")
-
-
-if user_utility_RCI < user_utility_RII:
-    print("OOOOOOOOHHHH NOOOOOO: RII won by:", user_utility_RCI - user_utility_RII)
-else:
-    print("YYYYYYAAAAAYYYYY: RCI won by:", user_utility_RCI - user_utility_RII)

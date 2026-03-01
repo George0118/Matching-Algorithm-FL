@@ -40,9 +40,10 @@ def dataset_sizes(s: Server, area, users, cps, total_images, verbose = False):
                 user_min_distances[u.num] = distance
 
     # Calculate the data size ratios based on the user minimum distance from the CPs
+    k = 40
     for i in range(N):
         if user_min_distances[i] <= 0.4:
-            ratios[i] = 1/(user_min_distances[i] + 1e-6)
+            ratios[i] = 2 ** (-k * user_min_distances[i])
         else:
             ratios[i] = 0
 

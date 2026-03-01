@@ -1,7 +1,7 @@
 @echo off
 
 rem Define the program executable path
-set program=python3.8
+set program=python
 
 rem Loop through each triple of arguments
 for %%a in (12 15 18 21 24 27 30) do (

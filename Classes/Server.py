@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from Data.Classes.Model import Model
 from general_parameters import N, current_max_users
 
@@ -91,7 +92,6 @@ class Server:
         avg_weights = [sum(weights) for weights in zip(*scaled_weight_lists)]
         return avg_weights
 
-
     def evaluate(self,model,test_X, test_y):
         loss,acc=Model.evaluate_model(model,test_X, test_y)
         return loss,acc
@@ -118,20 +118,20 @@ class Server:
         critical_points = self.get_critical_points()
 
         factors = [0] * N
-        min_factor = None
+        max_factor = None
 
         for u in coalition:
             importance_list = u.get_importance()
             factor = 0
             for cp in critical_points:
-                factor += importance_list[cp.num] * u.used_datasize
-            factors [u.num] = factor
-            if min_factor is None or min_factor > factor:
-                min_factor = factor
+                factor += (importance_list[cp.num]**0.33) * u.used_datasize
+            factors[u.num] = factor
+            if max_factor is None or max_factor < factor:
+                max_factor = factor
 
         fact_sum = 0
         for u in coalition:
-            factors[u.num] = np.exp(factors[u.num]/min_factor)
+            factors[u.num] = np.exp((factors[u.num] - max_factor)/max_factor)
             fact_sum += factors[u.num]
 
         for u in coalition:
